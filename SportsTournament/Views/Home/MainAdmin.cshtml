@@ -1,0 +1,96 @@
+﻿@model IEnumerable<SportsTournament.Models.AdminRequest>
+
+@{
+    ViewData["Title"] = "MainAdmin";
+}
+
+<a asp-action="Index" class="btn btn-primary">Exit</a>
+<h2>Pending & Active Admin Requests</h2>
+
+@if (!Model.Any())
+{
+    <p>No admin requests or active admins found.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Status</th>
+                <th>Requested At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var AdminRequest in Model)
+            {
+                <tr>
+                    <td>@AdminRequest.Username</td>
+                    <td>@AdminRequest.Status</td>
+                    <td>@AdminRequest.RequestedAt.ToString("g")</td>
+                    <td>
+                        @if (AdminRequest.Status == "Pending")
+                        {
+                            <!-- Accept -->
+                            <form asp-action="AcceptAdmin" method="post" style="display:inline;">
+                                <input type="hidden" name="username" value="@AdminRequest.Username" />
+                                <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                            </form>
+
+                            <!-- Reject -->
+                            <form asp-action="RejectAdmin" method="post" style="display:inline;">
+                                <input type="hidden" name="username" value="@AdminRequest.Username" />
+                                <button type="submit" class="btn btn-warning btn-sm">Reject</button>
+                            </form>
+
+                            <!-- Delete -->
+                            <form asp-action="DeleteDetails" method="post" style="display:inline;">
+                                <input type="hidden" name="username" value="@AdminRequest.Username" />
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure you want to delete this request?')">
+                                    Delete
+                                </button>
+                            </form>
+                        }
+                        else if (AdminRequest.Status == "Accepted")
+                        {
+                            <span class="badge bg-success">Active Admin</span>
+
+                            <!-- Remove (Revert to User) -->
+                            <form asp-action="RemoveAdmin" method="post" style="display:inline;">
+                                <input type="hidden" name="username" value="@AdminRequest.Username" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Remove this admin and revert to user?')">
+                                    Remove
+                                </button>
+                            </form>
+
+                            <!-- Delete -->
+                            <form asp-action="DeleteDetails" method="post" style="display:inline;">
+                                <input type="hidden" name="username" value="@AdminRequest.Username" />
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Delete this admin record permanently?')">
+                                    Delete
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span>@AdminRequest.Status</span>
+
+                            <!-- Delete for Rejected/Removed -->
+                            <form asp-action="DeleteDetails" method="post" style="display:inline;">
+                                <input type="hidden" name="username" value="@AdminRequest.Username" />
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Delete this record permanently?')">
+                                    Delete
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

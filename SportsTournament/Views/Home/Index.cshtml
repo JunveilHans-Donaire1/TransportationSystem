@@ -1,0 +1,308 @@
+﻿@model SportsTournament.ViewModels.AuthViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = null; // ensures no Razor layout issues
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transportation Booking System</title>
+
+    <style>
+        /* === Base Setup === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #007bff, #00bcd4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* === Glassmorphism Card === */
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 420px;
+            animation: fadeIn 1s ease;
+        }
+
+        .card-body {
+            padding: 2.5rem;
+        }
+
+        /* === Titles === */
+        h3 {
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* === Input Fields === */
+        .form-label {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .form-control {
+            border-radius: 30px;
+            padding: 10px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+            .form-control::placeholder {
+                color: rgba(255, 255, 255, 0.7);
+            }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #fff;
+                background: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+            }
+
+        /* === Buttons === */
+        .btn-primary,
+        .btn-success {
+            border: none;
+            border-radius: 30px;
+            padding: 12px 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #007bff, #00bcd4);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, #43a047, #66bb6a);
+            color: #fff;
+        }
+
+            .btn-primary:hover,
+            .btn-success:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+
+        /* === Links === */
+        a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+        .text-muted {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        /* === Validation Errors === */
+        .text-danger {
+            font-size: 0.9rem;
+            color: #ff6b6b !important;
+        }
+
+        /* === Animation === */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* === Loading Overlay === */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #007bff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #007bff;
+            letter-spacing: 1px;
+        }
+
+      
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading Dashboard...</div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <h3 id="form-title">Login</h3>
+
+                        <!-- Login Form -->
+                        <form id="loginForm" asp-action="Login" method="post" onsubmit="showLoading();">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="Login.Username" class="form-label ">Username</label>
+                                <input asp-for="Login.Username" class="form-control" placeholder="Enter username" />
+                                <span asp-validation-for="Login.Username" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Login.Password" class="form-label ">Password</label>
+                                <input asp-for="Login.Password" type="password" class="form-control" placeholder="Enter password" />
+                                <span asp-validation-for="Login.Password" class="text-danger"></span>
+                            </div>
+
+                            <div class="d-grid mb-2">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </div>
+
+                            <div class="text-center">
+                                <small>Don’t have an account? <a href="javascript:void(0);" onclick="toggleForms()">Register here</a></small>
+                            </div>
+                            <a href="#" class="text-muted">Forgot Password?</a>
+                        </form>
+
+                        <!-- Register Form -->
+                        <form id="registerForm" asp-action="Register" method="post" style="display:none;" onsubmit="showLoading();">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="Register.Username" class="form-label">Username</label>
+                                <input asp-for="Register.Username" class="form-control" placeholder="Choose username" />
+                                <span asp-validation-for="Register.Username" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Register.Password" class="form-label">Password</label>
+                                <input asp-for="Register.Password" type="password" class="form-control" placeholder="Create password" />
+                                <span asp-validation-for="Register.Password" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Register.Role" class="form-label">Select Role</label>
+                                <select asp-for="Register.Role" class="form-control" id="roleSelect" onchange="checkAdminRequest()">
+                                    <option value="User" selected>User</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                                <span asp-validation-for="Register.Role" class="text-danger"></span>
+
+                                <small id="adminRequestMsg" class="text-info" style="display:none; margin-top:5px;">
+                                    Request to be Admin submitted. We will review your request.
+                                </small>
+                            </div>
+
+                            <script>
+                                function checkAdminRequest() {
+                                    const roleSelect = document.getElementById("roleSelect");
+                                    const message = document.getElementById("adminRequestMsg");
+
+                                    if (roleSelect.value === "Admin") {
+                                        message.style.display = "block"; // show message
+                                    } else {
+                                        message.style.display = "none"; // hide message
+                                    }
+                                }
+                            </script>
+                            <div class="d-grid mb-2">
+                                <button type="submit" class="btn btn-success">Register</button>
+                            </div>
+
+                            <div class="text-center">
+                                <small>Already have an account? <a href="javascript:void(0);" onclick="toggleForms()">Login here</a></small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ Scripts -->
+    <script>
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const title = document.getElementById('form-title');
+
+            if (loginForm.style.display === "none") {
+                loginForm.style.display = "block";
+                registerForm.style.display = "none";
+                title.textContent = "Login";
+            } else {
+                loginForm.style.display = "none";
+                registerForm.style.display = "block";
+                title.textContent = "Register";
+            }
+        }
+
+        function showLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'flex';
+            return true;
+        }
+    </script>
+</body>
+</html>

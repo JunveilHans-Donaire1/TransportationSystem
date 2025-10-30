@@ -1,0 +1,129 @@
+﻿@model IEnumerable<SportsTournament.Models.Records>
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+        color: #0d6efd;
+        font-weight: 700;
+        margin-top: 30px;
+    }
+
+    table {
+        width: 90%;
+        margin: 20px auto;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    thead {
+        background-color: #0d6efd;
+        color: #fff;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: center;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f6fc;
+    }
+
+    tbody tr:hover {
+        background-color: #e9f2ff;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        margin: 2px;
+    }
+
+    .btn-edit {
+        background-color: #198754;
+        color: white;
+        border: none;
+    }
+
+        .btn-edit:hover {
+            background-color: #157347;
+        }
+
+    .btn-cancel {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+    }
+
+        .btn-cancel:hover {
+            background-color: #bb2d3b;
+        }
+</style>
+
+<h2>My Bookings</h2>
+<p style="text-align:center;">Total: @ViewBag.TotalRecords</p>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success text-center">@TempData["Message"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger text-center">@TempData["Error"]</div>
+}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Type</th>
+            <th>Passenger</th>
+            <th>Location</th>
+            <th>Destination</th>
+            <th>Status</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model)
+        {
+            <tr>
+                <td>@record.Id</td>
+                <td>@record.FullName</td>
+                <td>@record.Type</td>
+                <td>@record.Passenger</td>
+                <td>@record.Location</td>
+                <td>@record.Destination</td>
+                <td>@record.Status</td>
+                <td>@record.PhoneNumber</td>
+                <td>
+                    <a asp-action="SportsTournament" asp-route-id="@record.Id" class="btn btn-sm btn-edit">Edit</a>
+
+                    <form asp-action="CancelBooking" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@record.Id" />
+                        <button type="submit" class="btn btn-sm btn-cancel"
+                                onclick="return confirm('Cancel this booking?');">
+                            Cancel
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="text-align:center;">
+    <a asp-action="Router" class="btn btn-primary">Back</a>
+</div>
