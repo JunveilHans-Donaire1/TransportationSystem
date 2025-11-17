@@ -1,0 +1,214 @@
+﻿@model IEnumerable<SportsTournament.Models.Records>
+
+@{
+    ViewData["Title"] = "Booking Records";
+    var records = Model ?? Enumerable.Empty<SportsTournament.Models.Records>();
+    var totalCount = records.Count();
+}
+
+<!-- Bootstrap & FontAwesome -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 20px;
+    }
+
+    h2 {
+        text-align: center;
+        color: #0d6efd;
+        font-weight: 700;
+        margin-top: 20px;
+    }
+
+    p {
+        text-align: center;
+        font-size: 1.1rem;
+        color: #495057;
+        margin-bottom: 20px;
+    }
+
+    table {
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    thead {
+        background-color: #0d6efd;
+        color: white;
+    }
+
+    th, td {
+        text-align: center;
+        padding: 10px 12px;
+        vertical-align: middle;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f6fc;
+    }
+
+    tbody tr:hover {
+        background-color: #e9f2ff;
+        transition: 0.2s ease-in-out;
+    }
+
+    .badge-status {
+        padding: 0.45em 0.75em;
+        font-size: 0.9rem;
+        border-radius: 5px;
+        font-weight: 600;
+    }
+
+    .badge-pending {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .badge-accepted {
+        background-color: #198754;
+        color: white;
+    }
+
+    .badge-rejected {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    #searchBox {
+        max-width: 360px;
+        margin: 8px auto 18px auto;
+        display: block;
+    }
+
+    .btn-sm {
+        margin: 2px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        display: block;
+        width: 200px;
+        margin: 20px auto;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .alert {
+        text-align: center;
+        width: 60%;
+        margin: 20px auto;
+        border-radius: 8px;
+    }
+</style>
+
+<h2>Transportation Booking</h2>
+<p>List of Bookings: @totalCount</p>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+<!-- Search -->
+<input type="text" id="searchBox" class="form-control" placeholder="Search by username, name or status...">
+
+<table class="table table-bordered mt-3" id="bookingTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Type</th>
+            <th>Passenger</th>
+            <th>Location</th>
+            <th>Destination</th>
+            <th>Status</th>
+            <th>Username</th>
+            <th>Phone Number</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="recordsTable">
+        @foreach (var record in records)
+        {
+            var statusLower = (record.Status ?? "").ToLower();
+            <tr>
+                <td>@record.Id</td>
+                <td>@record.FullName</td>
+                <td>@record.Type</td>
+                <td>@record.Passenger</td>
+                <td>@record.Location</td>
+                <td>@record.Destination</td>
+                <td>
+                    @switch (statusLower)
+                    {
+                        case "pending":
+                            <span class="badge-status badge-pending">Pending</span>
+                            break;
+                        case "accepted":
+                            <span class="badge-status badge-accepted">Accepted</span>
+                            break;
+                        case "rejected":
+                            <span class="badge-status badge-rejected">Rejected</span>
+                            break;
+                        default:
+                            <span class="badge-status badge-secondary">@record.Status</span>
+                            break;
+                    }
+                </td>
+                <td>@record.Username</td>
+                <td>@record.PhoneNumber</td>
+                <td>
+                    @if (statusLower == "pending")
+                    {
+                        <form asp-action="AcceptRecord" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@record.Id" />
+                            <button type="submit" class="btn btn-sm btn-success">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                        </form>
+
+                        <form asp-action="RejectRecord" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@record.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </form>
+                    }
+
+                    <form asp-action="DeleteRecord" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@record.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this record?')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-controller="Auth" asp-action="Index" class="btn btn-primary">Exit</a>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchBox = document.getElementById('searchBox');
+        const rows = document.querySelectorAll('#recordsTable tr');
+
+        searchBox?.addEventListener('input', function () {
+            const filter = this.value.toLowerCase().trim();
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    });
+</script>

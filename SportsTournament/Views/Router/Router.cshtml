@@ -1,0 +1,71 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Router Dashboard";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="~/css/Router.css" />
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li>
+                <a asp-action="Transportation" asp-controller="Booking">
+                    <i data-lucide="car"></i> Book Ride
+                </a>
+            </li>
+            <li>
+                <a asp-action="Inbox" asp-controller="Notification">
+                    <i data-lucide="bell"></i> Notifications
+                </a>
+            </li>
+            <li>
+                <a asp-action="UsersProfile" asp-controller="User">
+                    <i data-lucide="user"></i> Details
+                </a>
+            </li>
+
+            <li>
+                <a asp-action="Feedbacks" asp-controller="User">
+                    <i data-lucide="message-square"></i> Feedback
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main>
+        <h2>Welcome, @ViewBag.Username!</h2>
+
+        <p>
+            The <strong>Transportation Booking System</strong> makes traveling easier by allowing users
+            to reserve rides quickly and conveniently. It ensures organized, safe, and timely travel
+            for all passengers — providing efficiency and reliability for everyone.
+        </p>
+
+        <div class="card">
+            <h3>Quick Stats</h3>
+            <p>Number of bookings, notifications, and user feedback will appear here.</p>
+        </div>
+
+        <a class="exit-btn" asp-action="Index" asp-controller="Auth">Exit</a>
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
