@@ -1,0 +1,46 @@
+﻿@model IEnumerable<SportsTournament.Models.UserDetail>
+
+@{
+    ViewData["Title"] = "My Details";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">My Details</h2>
+
+    @if (!Model.Any())
+    {
+        <p class="text-center text-danger">No details found.</p>
+    }
+    else
+    {
+        <table class="table table-striped table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Middle Name</th>
+                    <th>Last Name</th>
+                    <th>Number</th>
+                    <th>Gmail</th>
+                    <th>Address</th>
+                    <th>Password</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.FirstName</td>
+                        <td>@item.MiddleName</td>
+                        <td>@item.LastName</td>
+                        <td>@item.Number</td>
+                        <td>@item.Gmail</td>
+                        <td>@item.Address</td>
+                        <td>@item.Password</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

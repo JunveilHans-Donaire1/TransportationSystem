@@ -1,0 +1,463 @@
+﻿@model Tuple<
+IEnumerable<SportsTournament.Models.StaffRequest>,
+    IEnumerable<SportsTournament.Models.Records>,
+    IEnumerable<SportsTournament.Models.UserDetail>,
+    IEnumerable<SportsTournament.ViewModels.StaffDetail>,
+    IEnumerable<SportsTournament.Models.User>,
+    IEnumerable <SportsTournament.Models.Feedback >
+>
+
+
+
+
+@{
+    ViewData["Title"] = "Main Admin Dashboard";
+
+    var adminRequests = Model.Item1 ?? Enumerable.Empty<SportsTournament.Models.StaffRequest>();
+    var bookingRecords = Model.Item2 ?? Enumerable.Empty<SportsTournament.Models.Records>();
+    var userDetails = Model.Item3 ?? Enumerable.Empty<SportsTournament.Models.UserDetail>();
+    var adminDetails = Model.Item4 ?? Enumerable.Empty<SportsTournament.ViewModels.StaffDetail>();
+    var usersTable = Model.Item5?.Where(u => u.Role.ToLower() != "admin") ?? Enumerable.Empty<SportsTournament.Models.User>();
+
+    var totalAdmins = adminRequests.Count();
+    var pendingAdmins = adminRequests.Count(r => (r.Status ?? "").ToLower() == "pending");
+    var acceptedAdmins = adminRequests.Count(r => (r.Status ?? "").ToLower() == "accepted");
+    var rejectedAdmins = adminRequests.Count(r => (r.Status ?? "").ToLower() == "rejected");
+
+    var totalBookings = bookingRecords.Count();
+    var pendingBookings = bookingRecords.Count(r => (r.Status ?? "").ToLower() == "pending");
+    var acceptedBookings = bookingRecords.Count(r => (r.Status ?? "").ToLower() == "accepted");
+    var rejectedBookings = bookingRecords.Count(r => (r.Status ?? "").ToLower() == "rejected");
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/css/MainAdmin.css" asp-append-version="true" />
+
+<div class="container my-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <h2 class="text-primary fw-bold">Admin Dashboard</h2>
+        <button class="btn btn-outline-primary btn-sm mt-2 mt-md-0" onclick="history.back()">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success text-center py-2">@TempData["Message"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center py-2">@TempData["Error"]</div>
+    }
+
+    <div class="row admin-dashboard">
+
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 p-0 mb-3 mb-md-0">
+            <ul class="nav flex-column nav-pills sidebar-nav shadow-sm rounded" id="dashboardTabs" role="tablist">
+                <li class="nav-item mb-1">
+                    <button class="nav-link active small py-2" data-bs-toggle="tab" data-bs-target="#admin">
+                        <i class="fa-solid fa-user-tie me-2"></i> Staff Requests 
+                    </button>
+                </li>
+                <li class="nav-item mb-1">
+                    <button class="nav-link small py-2" data-bs-toggle="tab" data-bs-target="#adminDetails">
+                        <i class="fa-solid fa-address-card me-2"></i> Admin Details
+                    </button>
+                </li>
+                <li class="nav-item mb-1">
+                    <button class="nav-link small py-2" data-bs-toggle="tab" data-bs-target="#booking">
+                        <i class="fa-solid fa-calendar-check me-2"></i> Booking Records
+                    </button>
+                </li>
+                <li class="nav-item mb-1">
+                    <button class="nav-link small py-2" data-bs-toggle="tab" data-bs-target="#users">
+                        <i class="fa-solid fa-users me-2"></i> Users Details
+                    </button>
+                </li>
+                <li class="nav-item mb-1">
+                    <button class="nav-link small py-2" data-bs-toggle="tab" data-bs-target="#usersTableTab">
+                        <i class="fa-solid fa-table-list me-2"></i> Users Account 
+                    </button>
+                </li>
+                <li class="nav-item mb-1">
+                    <button class="nav-link small py-2" data-bs-toggle="tab" data-bs-target="#feedbackTab">
+                        <i class="fa-solid fa-comment-dots me-2"></i> Feedbacks 
+                    </button>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- Content -->
+        <div class="col-md-9 col-lg-10 tab-content px-3">
+
+            <!-- Admin Requests Tab -->
+            <div class="tab-pane fade show active" id="admin">
+                <div class="card shadow-sm mb-4 rounded-3">
+                    <div class="card-body">
+
+                        <!-- Status Cards -->
+                        <div class="d-flex justify-content-start align-items-center mb-3 gap-3 flex-wrap">
+
+                            <!-- All -->
+                            <div class="card status-card text-center p-2 border-primary active" data-status="all" style="width: 120px; cursor: pointer;">
+                                <div class="card-body p-2">
+                                    <i class="fa-solid fa-list fa-lg text-primary"></i>
+                                    <h6 class="mt-1 mb-0">All</h6>
+                                    <small class="text-muted">(@totalAdmins)</small>
+                                </div>
+                            </div>
+
+                            <!-- Pending -->
+                            <div class="card status-card text-center p-2 border-warning" data-status="pending" style="width: 120px; cursor: pointer;">
+                                <div class="card-body p-2">
+                                    <i class="fa-solid fa-clock fa-lg text-warning"></i>
+                                    <h6 class="mt-1 mb-0">Pending</h6>
+                                    <small class="text-muted">(@pendingAdmins)</small>
+                                </div>
+                            </div>
+
+                            <!-- Accepted -->
+                            <div class="card status-card text-center p-2 border-success" data-status="accepted" style="width: 120px; cursor: pointer;">
+                                <div class="card-body p-2">
+                                    <i class="fa-solid fa-check fa-lg text-success"></i>
+                                    <h6 class="mt-1 mb-0">Accepted</h6>
+                                    <small class="text-muted">(@acceptedAdmins)</small>
+                                </div>
+                            </div>
+
+                            <!-- Rejected -->
+                            <div class="card status-card text-center p-2 border-danger" data-status="rejected" style="width: 120px; cursor: pointer;">
+                                <div class="card-body p-2">
+                                    <i class="fa-solid fa-xmark fa-lg text-danger"></i>
+                                    <h6 class="mt-1 mb-0">Rejected</h6>
+                                    <small class="text-muted">(@rejectedAdmins)</small>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Search Box -->
+                        <input type="text" id="searchAdmin" class="form-control form-control-sm mb-3 w-auto" placeholder="Search...">
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-sm align-middle" id="adminTable">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Status</th>
+                                        <th>Requested At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var admin in adminRequests)
+                                    {
+                                        var statusLower = (admin.Status ?? "").ToLower();
+                                        <tr data-status="@statusLower">
+                                            <td>@admin.Username</td>
+                                            <td>@admin.Status</td>
+                                            <td>@admin.RequestedAt.ToString("g")</td>
+                                            <td class="text-center">
+                                               
+                                                <form asp-action="DeleteDetails" method="post" class="d-inline">
+                                                    <input type="hidden" name="username" value="@admin.Username" />
+                                                    <button type="submit" class="btn btn-sm btn-secondary"><i class="fa-solid fa-trash"></i></button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Admin Details -->
+            <div class="tab-pane fade" id="adminDetails">
+                <div class="card shadow-sm mb-4 rounded-3">
+                    <div class="card-body">
+                        <input type="text" id="searchAdminDetails" class="form-control form-control-sm mb-3 w-auto" placeholder="Search...">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-sm align-middle">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Full Name</th>
+                                        <th>Contact Number</th>
+                                        <th>Password</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ad in adminDetails)
+                                    {
+                                        <tr>
+                                            <td>@ad.Id</td>
+                                            <td>@ad.FullName</td>
+                                            <td>@ad.Number</td>
+                                            <td>@ad.Password</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="booking">
+                <div class="card shadow-sm mb-4 rounded-3">
+                    <div class="card-body">
+                        <!-- Search -->
+                        <input type="text" id="searchBooking" class="form-control form-control-sm mb-3 w-auto" placeholder="Search by username, name or status...">
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-sm align-middle" id="bookingTable">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Full Name</th>
+                                        <th>Type</th>
+                                        <th>Passenger</th>
+                                        <th>Location</th>
+                                        <th>Destination</th>
+                                        <th>Status</th>
+                                        <th>Username</th>
+                                        <th>Phone Number</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in bookingRecords)
+                                    {
+                                        var statusLower = (r.Status ?? "").ToLower();
+                                        <tr>
+                                            <td>@r.Id</td>
+                                            <td>@r.FullName</td>
+                                            <td>@r.Type</td>
+                                            <td>@r.Passenger</td>
+                                            <td>@r.Location</td>
+                                            <td>@r.Destination</td>
+                                            <td>
+                                                @switch (statusLower)
+                                                {
+                                                    case "pending":
+                                                        <span class="badge bg-warning text-dark">Pending</span>
+                                                        break;
+                                                    case "accepted":
+                                                        <span class="badge bg-success">Accepted</span>
+                                                        break;
+                                                    case "rejected":
+                                                        <span class="badge bg-danger">Rejected</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@r.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>@r.Username</td>
+                                            <td>@r.PhoneNumber</td>
+                                            <td>
+                                                @if (statusLower == "pending")
+                                                {
+                                                    <form asp-action="AcceptRecord" method="post" style="display:inline;">
+                                                        <input type="hidden" name="id" value="@r.Id" />
+                                                        <button type="submit" class="btn btn-sm btn-success">
+                                                            <i class="fa-solid fa-check"></i>
+                                                        </button>
+                                                    </form>
+
+                                                    <form asp-action="RejectRecord" method="post" style="display:inline;">
+                                                        <input type="hidden" name="id" value="@r.Id" />
+                                                        <button type="submit" class="btn btn-sm btn-danger">
+                                                            <i class="fa-solid fa-xmark"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+
+                                                <form asp-action="DeleteRecord" method="post" style="display:inline;">
+                                                    <input type="hidden" name="id" value="@r.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this record?')">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
+            <!-- Users Profile -->
+            <div class="tab-pane fade" id="users">
+                <div class="card shadow-sm mb-4 rounded-3">
+                    <div class="card-body">
+                        <input type="text" id="searchUsers" class="form-control form-control-sm mb-3 w-auto" placeholder="Search...">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-sm align-middle">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>First Name</th>
+                                        <th>Middle Name</th>
+                                        <th>Last Name</th>
+                                        <th>Number</th>
+                                        <th>Email</th>
+                                        <th>Address</th>
+                                        <th>Password</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var u in userDetails)
+                                    {
+                                        <tr>
+                                            <td>@u.Id</td>
+                                            <td>@u.FirstName</td>
+                                            <td>@u.MiddleName</td>
+                                            <td>@u.LastName</td>
+                                            <td>@u.Number</td>
+                                            <td>@u.Gmail</td>
+                                            <td>@u.Address</td>
+                                            <td>@u.Password</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="tab-pane fade" id="usersTableTab">
+                <div class="card shadow-sm mb-4 rounded-3">
+                    <div class="card-body">
+                        <input type="text" id="searchUsersTable" class="form-control form-control-sm mb-3 w-auto" placeholder="Search...">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-sm align-middle" id="usersTableMain">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Password</th>
+                                        <th>Role</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var u in usersTable)
+                                    {
+                                        <tr>
+                                            <td>@u.Id</td>
+                                            <td>@u.Username</td>
+                                            <td>@u.Email</td>
+                                            <td>@u.Password</td>
+                                            <td><span class="badge bg-secondary">User</span></td>
+                                            <td class="text-center">
+                                                <form asp-action="DeleteUser" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@u.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Tab -->
+            <div class="tab-pane fade" id="feedbackTab">
+                <div class="card shadow-sm mb-4 rounded-3">
+                    <div class="card-body">
+
+                        <!-- Search Box -->
+                        <input type="text" id="searchFeedback" class="form-control form-control-sm mb-3 w-auto" placeholder="Search...">
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-sm align-middle" id="feedbackTable">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Full Name</th>
+                                        <th>Message</th>
+                                        <th>Rating</th>
+                                   
+                                        <th>Submitted At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var f in Model.Item6)
+                                    {
+                                        <tr>
+                                            <td>@f.FeedbackId</td>
+                                            <td>@f.FullName</td>
+                                            <td>@f.Message</td>
+                                            <td>@(f.Rating.HasValue? f.Rating + " ⭐" : "-")</td>
+                                       
+                                            <td>@f.CreatedAt.ToString("g")</td>
+                                            <td class="text-center">
+                                                <form asp-action="DeleteFeedback" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@f.FeedbackId" />
+                                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></button>
+                                                </form>
+                                             
+                                              
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+        document.getElementById('searchBooking')?.addEventListener('input', function () {
+        var filter = this.value.toLowerCase();
+        document.querySelectorAll('#bookingTable tbody tr').forEach(function (row) {
+            row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+        });
+    });
+
+        // Feedback search
+    document.getElementById('searchFeedback')?.addEventListener('keyup', function () {
+        var searchValue = this.value.toLowerCase();
+        document.querySelectorAll('#feedbackTable tbody tr').forEach(function (row) {
+            row.style.display = row.innerText.toLowerCase().includes(searchValue) ? '' : 'none';
+        });
+    });
+
+
+    document.getElementById('searchUsersTable')?.addEventListener('keyup', function () {
+        var searchValue = this.value.toLowerCase();
+        document.querySelectorAll('#usersTableMain tbody tr').forEach(function (row) {
+            row.style.display = row.innerText.toLowerCase().includes(searchValue) ? '' : 'none';
+        });
+    });
+</script>
